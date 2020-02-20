@@ -1,0 +1,5 @@
+.DS_Store
+.idea/
+.nrepl-port
+*.iml
+ssd.png
