@@ -1,6 +1,7 @@
 {:paths ["dev"]
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
         org.clojure/tools.logging {:mvn/version "0.6.0"}
+        org.clojure/tools.namespace {:mvn/version "1.0.0"}
         org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}
         ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.2.1"}
         ai.djl.mxnet/mxnet-native-mkl$osx-x86_64 {:mvn/version "1.6.0-b"}}}
