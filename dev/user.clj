@@ -19,6 +19,17 @@
 
 (set! *warn-on-reflection* true)
 
+(extend-protocol p/Datafiable
+  Classifications
+  (datafy [o]
+    #:djl.classifications{:best (datafy/datafy (.best o))
+                          :items (map datafy/datafy (.items o))})
+
+  Classifications$Classification
+  (datafy [o]
+    #:djl.classification{:class (.getClassName o)
+                         :probability (.getProbability o)}))
+
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
 
@@ -41,17 +52,6 @@
 
 (defn predict [^Predictor predictor input]
   (.predict predictor input))
-
-(extend-protocol p/Datafiable
-  Classifications
-  (datafy [o]
-    #:djl.classifications{:best (datafy/datafy (.best o))
-                          :items (map datafy/datafy (.items o))})
-
-  Classifications$Classification
-  (datafy [o]
-    #:djl.classification{:class (.getClassName o)
-                         :probability (.getProbability o)}))
 
 (comment
 
