@@ -1,24 +1,63 @@
 (ns user
-  (:import (ai.djl.modality.cv.util BufferedImageUtils)
+  (:refer-clojure :exclude [load])
+  (:import (javax.imageio ImageIO)
+           (java.io File)
+           (java.awt.image BufferedImage)
+
+           (ai.djl.modality.cv.util BufferedImageUtils)
            (ai.djl.mxnet.zoo MxModelZoo)
            (ai.djl.training.util ProgressBar)
            (ai.djl.modality.cv ImageVisualization)
-
-           (javax.imageio ImageIO)
-           (java.io File)))
+           (ai.djl.repository.zoo ModelLoader ZooModel)
+           (ai.djl.translate Translator)
+           (ai.djl.inference Predictor)
+           (ai.djl.modality Classifications$Classification)))
 
 (set! *warn-on-reflection* true)
 
+(defn ^BufferedImage image-from-url [^String url]
+  (BufferedImageUtils/fromUrl url))
+
+(defn ^ModelLoader loader [k]
+  (case k
+    :mx-model-zoo/sdd MxModelZoo/SSD))
+
+(defn ^ZooModel load [^ModelLoader loader]
+  (.loadModel loader (ProgressBar.)))
+
+(defn ^ZooModel model [k]
+  (load (loader k)))
+
+(defn predictor
+  ([^ZooModel model]
+   (.newPredictor model))
+  ([^ZooModel model ^Translator translator]
+   (.newPredictor model translator)))
+
+(defn predict [^Predictor predictor input]
+  (.predict predictor input))
+
 (comment
 
-  (def img (BufferedImageUtils/fromUrl "https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/pose/soccer.png"))
+  (def image
+    (image-from-url "https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/pose/soccer.png"))
 
-  (def model (. MxModelZoo/SSD loadModel (ProgressBar.)))
+  (def model
+    (model :mx-model-zoo/sdd))
 
-  (def predict (-> (.newPredictor model) (.predict img)))
+  (def detections
+    (-> (predictor model)
+        (predict image)))
 
-  (ImageVisualization/drawBoundingBoxes img predict)
+  (map
+    (fn [^Classifications$Classification classification]
+      {:class (.getClassName classification)
+       :probability (.getProbability classification)})
+    (.items detections))
 
-  (ImageIO/write img "png" (File. "ssd.png"))
+
+  (ImageVisualization/drawBoundingBoxes image detections)
+
+  (ImageIO/write image "png" (File. "ssd.png"))
 
   )
