@@ -8,14 +8,14 @@
            (java.net URL)
            (java.awt.image BufferedImage)
 
+           (ai.djl.modality Classifications$Classification Classifications)
            (ai.djl.modality.cv.util BufferedImageUtils)
+           (ai.djl.modality.cv ImageVisualization)
            (ai.djl.mxnet.zoo MxModelZoo)
            (ai.djl.training.util ProgressBar)
-           (ai.djl.modality.cv ImageVisualization DetectedObjects$DetectedObject)
            (ai.djl.repository.zoo ModelLoader ZooModel)
            (ai.djl.translate Translator)
-           (ai.djl.inference Predictor)
-           (ai.djl.modality Classifications$Classification Classifications)))
+           (ai.djl.inference Predictor)))
 
 (set! *warn-on-reflection* true)
 
