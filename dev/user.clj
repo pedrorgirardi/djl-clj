@@ -1,9 +1,11 @@
 (ns user
   (:require [clojure.core.protocols :as p]
             [clojure.datafy :as datafy]
-            [clojure.tools.namespace.repl :refer [refresh]])
+            [clojure.tools.namespace.repl :refer [refresh]]
+            [clojure.java.io :as io])
   (:import (javax.imageio ImageIO)
            (java.io File)
+           (java.net URL)
            (java.awt.image BufferedImage)
 
            (ai.djl.modality.cv.util BufferedImageUtils)
@@ -17,7 +19,7 @@
 
 (set! *warn-on-reflection* true)
 
-(defn ^BufferedImage image-from-url [^String url]
+(defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
 
 (def available-loaders
@@ -26,8 +28,7 @@
 (defn ^ModelLoader loader [k]
   (case k
     :ssd MxModelZoo/SSD
-    (throw (ex-info (str "Loader " k " doesn't exist.") {:k k
-                                                         :available-loaders available-loaders}))))
+    (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
 (defn ^ZooModel load-model [k]
   (.loadModel (loader k) (ProgressBar.)))
@@ -57,7 +58,7 @@
   (refresh)
 
   (def image
-    (image-from-url "https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/pose/soccer.png"))
+    (image-from-url (io/resource "soccer.png")))
 
   (def model
     (load-model :ssd))
@@ -67,7 +68,6 @@
         (predict image)))
 
   (datafy/datafy detections)
-
 
   (ImageVisualization/drawBoundingBoxes image detections)
 
