@@ -1,5 +1,4 @@
 (ns user
-  (:refer-clojure :exclude [load])
   (:require [clojure.core.protocols :as p]
             [clojure.datafy :as datafy]
             [clojure.tools.namespace.repl :refer [refresh]])
@@ -21,15 +20,17 @@
 (defn ^BufferedImage image-from-url [^String url]
   (BufferedImageUtils/fromUrl url))
 
+(def available-loaders
+  #{:ssd})
+
 (defn ^ModelLoader loader [k]
   (case k
-    :mx-model-zoo/sdd MxModelZoo/SSD))
+    :ssd MxModelZoo/SSD
+    (throw (ex-info (str "Loader " k " doesn't exist.") {:k k
+                                                         :available-loaders available-loaders}))))
 
-(defn ^ZooModel load [^ModelLoader loader]
-  (.loadModel loader (ProgressBar.)))
-
-(defn ^ZooModel model [k]
-  (load (loader k)))
+(defn ^ZooModel load-model [k]
+  (.loadModel (loader k) (ProgressBar.)))
 
 (defn predictor
   ([^ZooModel model]
@@ -59,7 +60,7 @@
     (image-from-url "https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/pose/soccer.png"))
 
   (def model
-    (model :mx-model-zoo/sdd))
+    (load-model :ssd))
 
   (def detections
     (-> (predictor model)
