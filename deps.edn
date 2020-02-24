@@ -1,4 +1,4 @@
-{:paths ["dev" "resources"]
+{:paths ["src" "resources"]
 
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
         org.clojure/tools.namespace {:mvn/version "1.0.0"}
@@ -8,5 +8,8 @@
         ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.2.1"}}
 
  :aliases
- {:mxnet-osx
+ {:dev
+  {:extra-paths ["dev"]}
+
+  :mxnet-osx
   {:extra-deps {ai.djl.mxnet/mxnet-native-mkl$osx-x86_64 {:mvn/version "1.6.0-b"}}}}}
