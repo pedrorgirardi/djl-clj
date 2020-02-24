@@ -7,6 +7,7 @@
   (:import (javax.imageio ImageIO)
            (java.io File)
 
+           (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl.modality.cv ImageVisualization)))
 
 (comment
@@ -29,4 +30,20 @@
 
   (ImageIO/write image "png" (File. "ssd.png"))
 
-  )
+
+  ;; -- Bert QA
+  ;; https://github.com/awslabs/djl/blob/master/examples/docs/BERT_question_and_answer.md
+
+  (def model
+    (load-model :bert-qa))
+
+  (def input
+    (QAInput.
+     "When did BBC Japan start broadcasting?"
+     "BBC Japan was a general entertainment Channel. 
+      Which operated between December 2004 and April 2006.
+      It ceased operations after its Japanese distributor folded."
+     384))
+
+  (-> (predictor model)
+      (predict input)))
