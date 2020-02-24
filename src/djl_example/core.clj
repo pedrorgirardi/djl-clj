@@ -28,13 +28,15 @@
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
 
+(def loaders
+  {:ssd MxModelZoo/SSD
+   :bert-qa MxModelZoo/BERT_QA})
+
 (def available-loaders
-  #{:ssd})
+  (keys loaders))
 
 (defn ^ModelLoader loader [k]
-  (case k
-    :ssd MxModelZoo/SSD
-    (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
+  (or (loaders k) (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
 (defn ^ZooModel load-model [k]
   (.loadModel (loader k) (ProgressBar.)))
