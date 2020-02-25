@@ -1,13 +1,11 @@
 {:paths ["src" "resources"]
 
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.2.1"}}
+        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.3.0"}
+        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
 
  :aliases
  {:dev
   {:extra-paths ["dev"]
    :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
-                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
-
-  :mxnet-osx
-  {:extra-deps {ai.djl.mxnet/mxnet-native-mkl$osx-x86_64 {:mvn/version "1.6.0-b"}}}}}
+                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}}}
