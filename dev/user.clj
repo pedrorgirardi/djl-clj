@@ -8,7 +8,8 @@
            (java.io File)
 
            (ai.djl.mxnet.zoo.nlp.qa QAInput)
-           (ai.djl.modality.cv ImageVisualization)))
+           (ai.djl.modality.cv ImageVisualization)
+           (ai.djl Application$NLP)))
 
 (comment
 
@@ -37,13 +38,21 @@
   (def model
     (load-model :bert-qa))
 
+  (def model
+    (load-model {:application Application$NLP/QUESTION_ANSWER
+                 :input QAInput
+                 :output String
+                 :progress (progress-bar)
+                 :filter {"backbone" "bert"
+                          "dataset" "book_corpus_wiki_en_uncased"}}))
+
   (def input
     (QAInput.
-     "When did BBC Japan start broadcasting?"
-     "BBC Japan was a general entertainment Channel. 
-      Which operated between December 2004 and April 2006.
-      It ceased operations after its Japanese distributor folded."
-     384))
+      "When did BBC Japan start broadcasting?"
+      "BBC Japan was a general entertainment Channel.
+       Which operated between December 2004 and April 2006.
+       It ceased operations after its Japanese distributor folded."
+      384))
 
   (-> (predictor model)
       (predict input)))

@@ -8,4 +8,7 @@
  {:dev
   {:extra-paths ["dev"]
    :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
-                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}}}
+                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
+
+  :test
+  {:extra-paths ["test"]}}}

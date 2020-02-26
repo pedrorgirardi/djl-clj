@@ -8,9 +8,10 @@
            (ai.djl.modality.cv.util BufferedImageUtils)
            (ai.djl.mxnet.zoo MxModelZoo)
            (ai.djl.training.util ProgressBar)
-           (ai.djl.repository.zoo ModelLoader ZooModel)
+           (ai.djl.repository.zoo ModelLoader ZooModel Criteria ModelZoo Criteria$Builder)
            (ai.djl.translate Translator)
-           (ai.djl.inference Predictor)))
+           (ai.djl.inference Predictor)
+           (ai.djl.util Progress)))
 
 (set! *warn-on-reflection* true)
 
@@ -28,6 +29,23 @@
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
 
+(defn ^Criteria build-criteria [{:keys [application input output progress filter]}]
+  (let [^Criteria$Builder builder (.setTypes (Criteria/builder) input output)]
+    (when application
+      (.optApplication builder application))
+
+    (when progress
+      (.optProgress builder progress))
+
+    (when filter
+      (doseq [[k v] filter]
+        (.optFilter builder k v)))
+
+    (.build builder)))
+
+(defn ^Progress progress-bar []
+  (ProgressBar.))
+
 (def loaders
   {:ssd MxModelZoo/SSD
    :bert-qa MxModelZoo/BERT_QA})
@@ -35,11 +53,19 @@
 (def available-loaders
   (keys loaders))
 
-(defn ^ModelLoader loader [k]
+(defn ^ModelLoader model-loader [k]
   (or (loaders k) (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
-(defn ^ZooModel load-model [k]
-  (.loadModel (loader k) (ProgressBar.)))
+(defn ^ZooModel load-model [criteria]
+  (cond
+    (keyword? criteria)
+    (.loadModel (model-loader criteria) (progress-bar))
+
+    (map? criteria)
+    (ModelZoo/loadModel (build-criteria criteria))
+
+    :else
+    (throw (ex-info "Invalid criteria. It must be either a keyword or a map." {}))))
 
 (defn predictor
   ([^ZooModel model]
