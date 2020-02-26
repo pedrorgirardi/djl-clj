@@ -11,7 +11,8 @@
            (ai.djl.repository.zoo ModelLoader ZooModel Criteria ModelZoo Criteria$Builder)
            (ai.djl.translate Translator)
            (ai.djl.inference Predictor)
-           (ai.djl.util Progress)))
+           (ai.djl.util Progress)
+           (ai.djl Model)))
 
 (set! *warn-on-reflection* true)
 
@@ -56,14 +57,25 @@
 (def available-loaders
   (keys loaders))
 
-(defn ^ModelLoader model-loader [k]
+(defn ^ModelLoader model-loader
+  "A ModelLoader loads a particular ZooModel from a Repository for a model zoo.
+
+   See `available-loaders` for available keywords."
+  [k]
   (or (loaders k) (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
 (def ^:private invalid-criteria-message
   "Invalid criteria. It must be either a keyword, map or ai.djl.repository.zoo.Criteria.
    See `available-loaders` for available keywords.")
 
-(defn ^ZooModel load-model [criteria]
+(defn ^ZooModel load-model
+  "Returns the model that matches criteria.
+
+   Where `criteria` is:
+   - a keyword (see `available-loaders`)
+   - or a map;
+   - or a ai.djl.repository.zoo.Criteria"
+  [criteria]
   (cond
     (keyword? criteria)
     (.loadModel (model-loader criteria) (progress-bar))
@@ -78,10 +90,17 @@
     (throw (ex-info invalid-criteria-message {}))))
 
 (defn predictor
+  "Creates a new Predictor based on the model.
+
+   If it's a `ai.djl.repository.zoo.ZooModel` a default translator will be used.
+
+   You can use a Predictor, with a specified Translator, to perform inference on a Model."
   ([^ZooModel model]
    (.newPredictor model))
-  ([^ZooModel model ^Translator translator]
+  ([^Model model ^Translator translator]
    (.newPredictor model translator)))
 
-(defn predict [^Predictor predictor input]
+(defn predict
+  "Predicts an item for inference."
+  [^Predictor predictor input]
   (.predict predictor input))
