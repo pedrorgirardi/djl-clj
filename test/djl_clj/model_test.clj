@@ -1,6 +1,6 @@
-(ns djl-example.model-test
+(ns djl-clj.model-test
   (:require [clojure.test :refer :all]
-            [djl-example.core :refer :all])
+            [djl-clj.core :as djl])
   (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl Application$NLP)))
 
@@ -13,9 +13,9 @@
                    It ceased operations after its Japanese distributor folded."
                   384)
 
-          model (load-model :bert-qa)]
-      (is (= "[december, 2004]" (-> (predictor model)
-                                    (predict input))))))
+          model (djl/load-model :bert-qa)]
+      (is (= "[december, 2004]" (-> (djl/predictor model)
+                                    (djl/predict input))))))
 
   (testing "Bert QA - Map criteria"
     (let [input (QAInput.
@@ -25,11 +25,11 @@
                    It ceased operations after its Japanese distributor folded."
                   384)
 
-          model (load-model {:application Application$NLP/QUESTION_ANSWER
-                             :input QAInput
-                             :output String
-                             :progress (progress-bar)
-                             :filter {"backbone" "bert"
-                                      "dataset" "book_corpus_wiki_en_uncased"}})]
-      (is (= "[december, 2004]" (-> (predictor model)
-                                    (predict input)))))))
+          model (djl/load-model {:application Application$NLP/QUESTION_ANSWER
+                                 :input QAInput
+                                 :output String
+                                 :progress (djl/progress-bar)
+                                 :filter {"backbone" "bert"
+                                          "dataset" "book_corpus_wiki_en_uncased"}})]
+      (is (= "[december, 2004]" (-> (djl/predictor model)
+                                    (djl/predict input)))))))

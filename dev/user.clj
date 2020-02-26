@@ -3,7 +3,7 @@
             [clojure.tools.namespace.repl :refer [refresh]]
             [clojure.java.io :as io]
 
-            [djl-example.core :refer :all])
+            [djl-clj.core :refer :all])
   (:import (javax.imageio ImageIO)
            (java.io File)
 

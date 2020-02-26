@@ -1,17 +1,17 @@
-(ns djl-example.core-test
+(ns djl-clj.core-test
   (:require [clojure.test :refer :all]
-            [djl-example.core :as djl-example])
+            [djl-clj.core :as djl])
   (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl Application$NLP)
            (clojure.lang ExceptionInfo)))
 
 (deftest build-criteria-test
   (testing "Criteria map"
-    (let [criteria (djl-example/build-criteria {:application Application$NLP/QUESTION_ANSWER
-                                                :input QAInput
-                                                :output String
-                                                :filter {"backbone" "bert"
-                                                         "dataset" "book_corpus_wiki_en_uncased"}})]
+    (let [criteria (djl/build-criteria {:application Application$NLP/QUESTION_ANSWER
+                                        :input QAInput
+                                        :output String
+                                        :filter {"backbone" "bert"
+                                                 "dataset" "book_corpus_wiki_en_uncased"}})]
 
       (testing "Application"
         (is (= Application$NLP/QUESTION_ANSWER (.getApplication criteria))))
@@ -27,8 +27,8 @@
 
 (deftest load-model-test
   (testing "Try to load using an invalid criteria"
-    (is (= (var-get #'djl-example/invalid-criteria-message)
+    (is (= (var-get #'djl/invalid-criteria-message)
            (try
-             (djl-example/load-model nil)
+             (djl/load-model nil)
              (catch ExceptionInfo e
                (ex-message e)))))))

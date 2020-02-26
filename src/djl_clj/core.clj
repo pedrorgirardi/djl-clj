@@ -1,4 +1,4 @@
-(ns djl-example.core
+(ns djl-clj.core
   (:require [clojure.core.protocols :as p]
             [clojure.datafy :as datafy])
   (:import (java.net URL)
