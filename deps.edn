@@ -5,10 +5,18 @@
         ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
 
  :aliases
- {:dev
+ {:log4j
+  {:extra-deps {org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
+
+  :dev
   {:extra-paths ["dev"]
-   :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
-                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
+   :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}}}
 
   :test
-  {:extra-paths ["test"]}}}
+  {:extra-paths ["test"]}
+
+  :test-runner
+  {:extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                           :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+
+   :main-opts ["-m" "cognitect.test-runner"]}}}
