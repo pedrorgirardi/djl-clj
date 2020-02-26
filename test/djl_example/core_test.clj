@@ -4,12 +4,12 @@
   (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl Application$NLP)))
 
-(deftest make-criteria-test
-  (let [criteria (djl-example/make-criteria {:application Application$NLP/QUESTION_ANSWER
-                                             :input QAInput
-                                             :output String
-                                             :filter {"backbone" "bert"
-                                                      "dataset" "book_corpus_wiki_en_uncased"}})]
+(deftest criteria-test
+  (let [criteria (djl-example/build-criteria {:application Application$NLP/QUESTION_ANSWER
+                                        :input QAInput
+                                        :output String
+                                        :filter {"backbone" "bert"
+                                                 "dataset" "book_corpus_wiki_en_uncased"}})]
 
     (testing "Application"
       (is (= Application$NLP/QUESTION_ANSWER (.getApplication criteria))))

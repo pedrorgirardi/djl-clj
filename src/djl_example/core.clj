@@ -29,7 +29,7 @@
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
 
-(defn ^Criteria make-criteria [{:keys [application input output progress filter]}]
+(defn ^Criteria build-criteria [{:keys [application input output progress filter]}]
   (let [^Criteria$Builder builder (.setTypes (Criteria/builder) input output)]
     (when application
       (.optApplication builder application))
@@ -53,16 +53,16 @@
 (def available-loaders
   (keys loaders))
 
-(defn ^ModelLoader loader [k]
+(defn ^ModelLoader model-loader [k]
   (or (loaders k) (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
 (defn ^ZooModel load-model [criteria]
   (cond
     (keyword? criteria)
-    (.loadModel (loader criteria) (progress-bar))
+    (.loadModel (model-loader criteria) (progress-bar))
 
     (map? criteria)
-    (ModelZoo/loadModel (make-criteria criteria))
+    (ModelZoo/loadModel (build-criteria criteria))
 
     :else
     (throw (ex-info "Invalid criteria. It must be either a keyword or a map." {}))))
