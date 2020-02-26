@@ -56,6 +56,10 @@
 (defn ^ModelLoader model-loader [k]
   (or (loaders k) (throw (ex-info (str "Loader " k " doesn't exist.") {:available-loaders available-loaders}))))
 
+(def ^:private invalid-criteria-message
+  "Invalid criteria. It must be either a keyword, map or ai.djl.repository.zoo.Criteria.
+   See `available-loaders` for available keywords.")
+
 (defn ^ZooModel load-model [criteria]
   (cond
     (keyword? criteria)
@@ -64,8 +68,11 @@
     (map? criteria)
     (ModelZoo/loadModel (build-criteria criteria))
 
+    (instance? Criteria criteria)
+    (ModelZoo/loadModel criteria)
+
     :else
-    (throw (ex-info "Invalid criteria. It must be either a keyword or a map." {}))))
+    (throw (ex-info invalid-criteria-message {}))))
 
 (defn predictor
   ([^ZooModel model]
