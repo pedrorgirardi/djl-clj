@@ -43,7 +43,10 @@
 
     (.build builder)))
 
-(defn ^Progress progress-bar []
+(defn ^Progress progress-bar
+  "ProgressBar is an implementation of Progress.
+   It can be used to display the progress of a task in the form a bar."
+  []
   (ProgressBar.))
 
 (def loaders
