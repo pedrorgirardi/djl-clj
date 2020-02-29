@@ -33,7 +33,7 @@
 ;; => "[december, 2004]"
 ```
 
-### Test
+## Test
 
 ```
 $ bin/test
