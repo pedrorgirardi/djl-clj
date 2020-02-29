@@ -29,9 +29,11 @@
                    It ceased operations after its Japanese distributor folded."
                   384)]
       (predict predictor input)))
+
+;; => "[december, 2004]"
 ```
 
-### Running the CLI tests
+### Test
 
 ```
 $ bin/test
