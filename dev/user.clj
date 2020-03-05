@@ -15,11 +15,54 @@
            (ai.djl.ndarray.types Shape)
            (ai.djl.training.dataset Dataset$Usage Batch)
            (ai.djl.training Trainer)
-           (ai.djl.training.listener TrainingListener$Defaults)))
+           (ai.djl.training.listener TrainingListener$Defaults)
+           (ai.djl.nn SequentialBlock Blocks Activation)
+           (ai.djl.nn.core Linear)))
 
 (comment
 
   (refresh)
+
+  ;; Create your first deep learning neural network
+  ;;
+  ;; https://github.com/awslabs/djl/blob/master/jupyter/tutorial/create_your_first_network.ipynb
+
+  ;; -- Determine your input and output size
+
+  (def input-size (* 28 28))
+  (def output-size 10)
+
+  ;; -- Create a SequentialBlock
+
+  (def block (SequentialBlock.))
+
+  ;; -- Add blocks to SequentialBlock
+  ;;
+  ;; The first layer and last layer have fixed sizes depending on your desired input and output size.
+  ;; However, you are free to choose the number and sizes of the middle layers in the network.
+  ;; We will create a smaller MLP with two middle layers that gradually decrease the size.
+  ;; Typically, you would experiment with different values to see what works the best on your data set.
+
+  (doto block
+    (.add (Blocks/batchFlattenBlock input-size))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels 128))))
+    (.add (reify java.util.function.Function
+            (apply [this array]
+              (Activation/relu array))))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels 64))))
+    (.add (reify java.util.function.Function
+            (apply [this array]
+              (Activation/relu array))))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels output-size)))))
+
+
+
+  ;; Train your first model
+  ;;
+  ;; https://github.com/awslabs/djl/blob/ed0e90a32c208b4cf2e5331788eab84b660697cd/jupyter/tutorial/train_your_first_model.ipynb
 
   (def epochs 2)
   (def batch-size 64)
