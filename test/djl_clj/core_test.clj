@@ -32,3 +32,15 @@
              (djl/load-model nil)
              (catch ExceptionInfo e
                (ex-message e)))))))
+
+(deftest default-trainning-config-test
+  (let [loss (djl/softmax-cross-entropy-loss)
+
+        config (djl/default-trainning-config {:loss loss
+                                              :evaluators [(djl/accuracy-evaluator)]
+                                              :devices (djl/devices 0)
+                                              :listeners []})]
+    (is (= loss (.getLossFunction config)))
+    (is (= 1 (count (.getEvaluators config))))
+    (is (= 1 (count (.getDevices config))))
+    (is (= 0 (count (.getTrainingListeners config))))))
