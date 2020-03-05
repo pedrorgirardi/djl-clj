@@ -21,9 +21,6 @@
 
   (refresh)
 
-  (def block
-    (mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
-
   (def epochs 2)
   (def batch-size 64)
 
@@ -38,6 +35,9 @@
                     (.optUsage (Dataset$Usage/TEST))
                     (.setSampling batch-size true)))
       (.prepare (progress-bar))))
+
+  (def block
+    (mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
 
   (def config
     (default-trainning-config {:loss (softmax-cross-entropy-loss)
