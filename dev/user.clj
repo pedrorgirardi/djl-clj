@@ -14,7 +14,8 @@
            (ai.djl.basicdataset Mnist)
            (ai.djl.ndarray.types Shape)
            (ai.djl.training.dataset Dataset$Usage Batch)
-           (ai.djl.training Trainer)))
+           (ai.djl.training Trainer)
+           (ai.djl.training.listener TrainingListener$Defaults)))
 
 (comment
 
@@ -41,26 +42,22 @@
   (def config
     (default-trainning-config {:loss (softmax-cross-entropy-loss)
                                :evaluators [(accuracy-evaluator)]
-                               :devices (devices 0)
-                               :listeners []}))
+                               :listeners (TrainingListener$Defaults/logging "Mnist training"
+                                                                             batch-size
+                                                                             (.getNumIterations training-set)
+                                                                             (.getNumIterations test-set)
+                                                                             nil)}))
 
   (with-open [^Model model (doto (Model/newInstance) (.setBlock block))
               ^Trainer trainer (doto (.newTrainer model config)
-                                 (.setMetrics (metrics))
                                  ;; MNIST is 28x28 grayscale image and pre processed into 28 * 28 NDArray.
                                  ;; 1st axis is batch axis, we can use 1 for initialization.
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
     (doseq [epoch (range epochs)]
-      (log/debug "Epoch" epoch)
-
       (doseq [^Batch batch (batch-iterable trainer training-set)]
         (.trainBatch trainer batch)
         (.step trainer)
         (.close batch))
-
-      ;;(doseq [^Batch batch (batch-iterable trainer test-set)]
-      ;;  (.validateBatch trainer batch)
-      ;;  (.close batch))
 
       ;; Reset training and validation evaluators at end of epoch
       (.endEpoch trainer)))

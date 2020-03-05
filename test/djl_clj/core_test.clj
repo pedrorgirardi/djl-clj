@@ -3,7 +3,8 @@
             [djl-clj.core :as djl])
   (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl Application$NLP)
-           (clojure.lang ExceptionInfo)))
+           (clojure.lang ExceptionInfo)
+           (ai.djl.training.listener TrainingListener$Defaults)))
 
 (deftest build-criteria-test
   (testing "Criteria map"
@@ -39,8 +40,12 @@
         config (djl/default-trainning-config {:loss loss
                                               :evaluators [(djl/accuracy-evaluator)]
                                               :devices (djl/devices 0)
-                                              :listeners []})]
+                                              :listeners (TrainingListener$Defaults/logging "Mnist training"
+                                                                                            32
+                                                                                            32
+                                                                                            32
+                                                                                            nil)})]
     (is (= loss (.getLossFunction config)))
     (is (= 1 (count (.getEvaluators config))))
     (is (= 1 (count (.getDevices config))))
-    (is (= 0 (count (.getTrainingListeners config))))))
+    (is (= 6 (count (.getTrainingListeners config))))))
