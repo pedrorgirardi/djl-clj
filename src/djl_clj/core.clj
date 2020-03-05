@@ -33,7 +33,7 @@
   (BufferedImageUtils/fromUrl url))
 
 (defn ^Block mlp
-  "An MLP NeuralNetwork using RELU.
+  "A Multilayer Perceptron (MLP) NeuralNetwork using RELU.
 
    => (mlp 784 10 [128 64])"
   [input-size output-size hidden-sizes]
