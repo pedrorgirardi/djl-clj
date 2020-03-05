@@ -12,7 +12,9 @@
            (ai.djl.translate Translator)
            (ai.djl.inference Predictor)
            (ai.djl.util Progress)
-           (ai.djl Model)))
+           (ai.djl Model)
+           (ai.djl.basicmodelzoo.basic Mlp)
+           (ai.djl.nn Block)))
 
 (set! *warn-on-reflection* true)
 
@@ -29,6 +31,13 @@
 
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
+
+(defn ^Block mlp
+  "An MLP NeuralNetwork using RELU.
+
+   => (mlp 784 10 [128 64])"
+  [input-size output-size hidden-sizes]
+  (Mlp. input-size output-size (into-array Integer/TYPE hidden-sizes)))
 
 (defn ^Criteria build-criteria [{:keys [application input output progress filter]}]
   (let [^Criteria$Builder builder (.setTypes (Criteria/builder) input output)]

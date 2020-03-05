@@ -9,11 +9,15 @@
 
            (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl.modality.cv ImageVisualization)
-           (ai.djl Application$NLP)))
+           (ai.djl Application$NLP)
+           (ai.djl.basicdataset Mnist)))
 
 (comment
 
   (refresh)
+
+  (def block
+    (mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
 
   (with-open [model (load-model :ssd)
               predictor (predictor model)]
