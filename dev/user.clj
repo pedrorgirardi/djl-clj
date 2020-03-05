@@ -76,7 +76,8 @@
   (def ^Mnist test-set
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TEST))
-                    (.setSampling batch-size true)))
+                    (.setSampling batch-size true)
+                    (.optMaxIteration Long/MAX_VALUE)))
       (.prepare (progress-bar))))
 
   (def block
@@ -85,17 +86,14 @@
   (def config
     (default-trainning-config {:loss (softmax-cross-entropy-loss)
                                :evaluators [(accuracy-evaluator)]
-                               :listeners (TrainingListener$Defaults/logging "Mnist training"
-                                                                             batch-size
-                                                                             (.getNumIterations training-set)
-                                                                             (.getNumIterations test-set)
-                                                                             nil)}))
+                               :listeners (TrainingListener$Defaults/logging)}))
 
   (with-open [^Model model (doto (Model/newInstance) (.setBlock block))
-              ^Trainer trainer (doto (.newTrainer model config)
-                                 ;; MNIST is 28x28 grayscale image and pre processed into 28 * 28 NDArray.
-                                 ;; 1st axis is batch axis, we can use 1 for initialization.
-                                 (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
+              ^Trainer trainer (.newTrainer model config)]
+
+    (.setMetrics trainer (metrics))
+    (.initialize trainer (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])]))
+
     (doseq [epoch (range epochs)]
       (doseq [^Batch batch (batch-iterable trainer training-set)]
         (.trainBatch trainer batch)

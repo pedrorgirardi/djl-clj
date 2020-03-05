@@ -40,11 +40,7 @@
         config (djl/default-trainning-config {:loss loss
                                               :evaluators [(djl/accuracy-evaluator)]
                                               :devices (djl/devices 0)
-                                              :listeners (TrainingListener$Defaults/logging "Mnist training"
-                                                                                            32
-                                                                                            32
-                                                                                            32
-                                                                                            nil)})]
+                                              :listeners (TrainingListener$Defaults/logging)})]
     (is (= loss (.getLossFunction config)))
     (is (= 1 (count (.getEvaluators config))))
     (is (= 1 (count (.getDevices config))))
