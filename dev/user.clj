@@ -65,7 +65,7 @@
   ;; https://github.com/awslabs/djl/blob/ed0e90a32c208b4cf2e5331788eab84b660697cd/jupyter/tutorial/train_your_first_model.ipynb
 
   (def epochs 2)
-  (def batch-size 64)
+  (def batch-size 32)
 
   (def ^Mnist training-set
     (doto (.build (doto (Mnist/builder)
@@ -88,19 +88,30 @@
                                :evaluators [(accuracy-evaluator)]
                                :listeners (TrainingListener$Defaults/logging)}))
 
-  (with-open [^Model model (doto (Model/newInstance) (.setBlock block))
-              ^Trainer trainer (.newTrainer model config)]
+  (with-open [^Model model (doto (Model/newInstance)
+                             (.setBlock block))
 
-    (.setMetrics trainer (metrics))
-    (.initialize trainer (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])]))
+              ^Trainer trainer (doto (.newTrainer model config)
+                                 (.setMetrics (metrics))
+                                 (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
     (doseq [epoch (range epochs)]
-      (doseq [^Batch batch (.iterateDataset trainer training-set)]
-        (.trainBatch trainer batch)
-        (.step trainer)
-        (.close batch))
+      (doseq [^Batch batch (batches trainer training-set)]
+        (try
+          (.trainBatch trainer batch)
+          (.step trainer)
+          (catch Exception e
+            (log/error e))
+          (finally
+            (.close batch))))
 
-      (log/debug "End epoch")
+      (doseq [^Batch batch (batches trainer test-set)]
+        (try
+          (.validateBatch trainer batch)
+          (catch Exception e
+            (log/error e))
+          (finally
+            (.close batch))))
 
       ;; Reset training and validation evaluators at end of epoch
       (.endEpoch trainer)))

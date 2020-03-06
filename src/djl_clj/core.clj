@@ -101,7 +101,7 @@
   []
   (Metrics.))
 
-(defn batch-iterable
+(defn batches
   "Fetches an iterator that can iterate through the given Dataset.
 
    Returns an Iterable of Batch that contains batches of data from the dataset."
