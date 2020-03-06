@@ -12,7 +12,15 @@
            (ai.djl.translate Translator)
            (ai.djl.inference Predictor)
            (ai.djl.util Progress)
-           (ai.djl Model)))
+           (ai.djl Model Device)
+           (ai.djl.basicmodelzoo.basic Mlp)
+           (ai.djl.nn Block)
+           (ai.djl.training.loss Loss)
+           (ai.djl.training TrainingConfig DefaultTrainingConfig Trainer)
+           (ai.djl.training.evaluator Evaluator Accuracy)
+           (ai.djl.training.listener TrainingListener)
+           (ai.djl.metric Metrics)
+           (ai.djl.training.dataset Dataset)))
 
 (set! *warn-on-reflection* true)
 
@@ -29,6 +37,76 @@
 
 (defn ^BufferedImage image-from-url [^URL url]
   (BufferedImageUtils/fromUrl url))
+
+(defn ^Block mlp
+  "A Multilayer Perceptron (MLP) NeuralNetwork using RELU.
+
+   => (mlp 784 10 [128 64])"
+  [input-size output-size hidden-sizes]
+  (Mlp. input-size output-size (into-array Integer/TYPE hidden-sizes)))
+
+(defn devices
+  "Returns an array of devices given the maximum number of GPUs to use.
+
+   If GPUs are available, it will return an array
+   of Device of size (min num-available max-gpus).
+   Else, it will return an array with a single CPU device."
+  [max-gpus]
+  (Device/getDevices max-gpus))
+
+(defn ^Loss softmax-cross-entropy-loss
+  "Returns a new instance of SoftmaxCrossEntropyLoss with default arguments."
+  []
+  (Loss/softmaxCrossEntropyLoss))
+
+(defn ^Accuracy accuracy-evaluator
+  "Returns a multiclass accuracy evaluator that computes accuracy across axis
+   1 along the 0th index."
+  []
+  (Accuracy.))
+
+(defn ^TrainingConfig default-trainning-config
+  "A Trainer requires an Initializer to initialize the parameters of the
+   model, an Optimizer to compute gradients and update the parameters according
+   to a Loss function. It also needs to know the Evaluators that need to be
+   computed during training. A TrainingConfig instance that is passed to the
+   Trainer will provide this information, and thus facilitate the training
+   process."
+  [{:keys [loss evaluators devices listeners]}]
+  (let [config (DefaultTrainingConfig. loss)]
+    (doseq [^Evaluator evaluator evaluators]
+      (.addEvaluator config evaluator))
+
+    (when (seq devices)
+      (.optDevices config devices))
+
+    (when (seq listeners)
+      (.addTrainingListeners config (into-array TrainingListener listeners)))
+
+    config))
+
+(defn ^Metrics metrics
+  "A collection of Metric objects organized by metric name.
+
+   Metric is a utility class that is used in the Trainer and Predictor to capture
+   performance and other metrics during runtime.
+
+   It is built as a collection of individual Metric classes. As a container
+   for individual metrics classes, Metrics stores them as time series data so
+   that metric-vs-timeline analysis can be performed. It also provides
+   convenient statistical methods for getting aggregated information, such as
+   mean and percentile. The metrics is used to store key performance indicators
+   (KPIs) during inference and training runs. These KPIs include various
+   latencies, CPU and GPU memory consumption, losses, etc."
+  []
+  (Metrics.))
+
+(defn batches
+  "Fetches an iterator that can iterate through the given Dataset.
+
+   Returns an Iterable of Batch that contains batches of data from the dataset."
+  [^Trainer trainer ^Dataset dataset]
+  (.iterateDataset trainer dataset))
 
 (defn ^Criteria build-criteria [{:keys [application input output progress filter]}]
   (let [^Criteria$Builder builder (.setTypes (Criteria/builder) input output)]

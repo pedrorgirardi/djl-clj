@@ -1,16 +1,20 @@
-{:paths ["src" "resources"]
+{:mvn/repos {"sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots/"}}
+
+ :paths ["src" "resources"]
 
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.3.0"}
-        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
+        ai.djl/api {:mvn/version "0.4.0-SNAPSHOT"}
+        ai.djl/model-zoo {:mvn/version "0.4.0-SNAPSHOT"}
+        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.4.0-SNAPSHOT"}
+        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0-SNAPSHOT"}}
 
  :aliases
- {:log4j
-  {:extra-deps {org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
-
-  :dev
+ {:dev
   {:extra-paths ["dev"]
-   :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}}}
+   :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
+                org.clojure/tools.logging {:mvn/version "1.0.0"}
+                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}
+                ai.djl/basicdataset {:mvn/version "0.4.0-SNAPSHOT"}}}
 
   :test
   {:extra-paths ["test"]}

@@ -1,5 +1,6 @@
 (ns user
   (:require [clojure.datafy :as datafy]
+            [clojure.tools.logging :as log]
             [clojure.tools.namespace.repl :refer [refresh]]
             [clojure.java.io :as io]
 
@@ -9,11 +10,118 @@
 
            (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl.modality.cv ImageVisualization)
-           (ai.djl Application$NLP)))
+           (ai.djl Application$NLP Model)
+           (ai.djl.basicdataset Mnist)
+           (ai.djl.ndarray.types Shape)
+           (ai.djl.training.dataset Dataset$Usage Batch)
+           (ai.djl.training Trainer)
+           (ai.djl.training.listener TrainingListener$Defaults)
+           (ai.djl.nn SequentialBlock Blocks Activation)
+           (ai.djl.nn.core Linear)
+           (java.nio.file Paths)))
 
 (comment
 
   (refresh)
+
+  ;; Create your first deep learning neural network
+  ;;
+  ;; https://github.com/awslabs/djl/blob/master/jupyter/tutorial/create_your_first_network.ipynb
+
+  ;; -- Determine your input and output size
+
+  (def input-size (* 28 28))
+  (def output-size 10)
+
+  ;; -- Create a SequentialBlock
+
+  (def block (SequentialBlock.))
+
+  ;; -- Add blocks to SequentialBlock
+  ;;
+  ;; The first layer and last layer have fixed sizes depending on your desired input and output size.
+  ;; However, you are free to choose the number and sizes of the middle layers in the network.
+  ;; We will create a smaller MLP with two middle layers that gradually decrease the size.
+  ;; Typically, you would experiment with different values to see what works the best on your data set.
+
+  (doto block
+    (.add (Blocks/batchFlattenBlock input-size))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels 128))))
+    (.add (reify java.util.function.Function
+            (apply [this array]
+              (Activation/relu array))))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels 64))))
+    (.add (reify java.util.function.Function
+            (apply [this array]
+              (Activation/relu array))))
+    ;; -->
+    (.add (.build (doto (Linear/builder) (.setOutChannels output-size)))))
+
+
+
+  ;; Train your first model
+  ;;
+  ;; https://github.com/awslabs/djl/blob/ed0e90a32c208b4cf2e5331788eab84b660697cd/jupyter/tutorial/train_your_first_model.ipynb
+
+  (def epochs 2)
+  (def batch-size 32)
+
+  (def ^Mnist training-set
+    (doto (.build (doto (Mnist/builder)
+                    (.optUsage (Dataset$Usage/TRAIN))
+                    (.setSampling batch-size true)))
+      (.prepare (progress-bar))))
+
+  (def ^Mnist test-set
+    (doto (.build (doto (Mnist/builder)
+                    (.optUsage (Dataset$Usage/TEST))
+                    (.setSampling batch-size true)
+                    (.optMaxIteration Long/MAX_VALUE)))
+      (.prepare (progress-bar))))
+
+  (def block
+    (mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
+
+  (def config
+    (default-trainning-config {:loss (softmax-cross-entropy-loss)
+                               :evaluators [(accuracy-evaluator)]
+                               :listeners (TrainingListener$Defaults/logging)}))
+
+  (with-open [^Model model (doto (Model/newInstance)
+                             (.setBlock block))
+
+              ^Trainer trainer (doto (.newTrainer model config)
+                                 (.setMetrics (metrics))
+                                 (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
+
+    (doseq [epoch (range epochs)]
+      (doseq [^Batch batch (batches trainer training-set)]
+        (try
+          (.trainBatch trainer batch)
+          (.step trainer)
+          (catch Exception e
+            (log/error e))
+          (finally
+            (.close batch))))
+
+      (doseq [^Batch batch (batches trainer test-set)]
+        (try
+          (.validateBatch trainer batch)
+          (catch Exception e
+            (log/error e))
+          (finally
+            (.close batch))))
+
+      ;; Reset training and validation evaluators at end of epoch
+      (.endEpoch trainer))
+
+    (.setProperty model "Epoch" (str epochs))
+    (.save model (Paths/get "dev" (into-array [""])) "mnist"))
+
+
+  ;; -- SSD
 
   (with-open [model (load-model :ssd)
               predictor (predictor model)]

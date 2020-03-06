@@ -3,7 +3,8 @@
             [djl-clj.core :as djl])
   (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
            (ai.djl Application$NLP)
-           (clojure.lang ExceptionInfo)))
+           (clojure.lang ExceptionInfo)
+           (ai.djl.training.listener TrainingListener$Defaults)))
 
 (deftest build-criteria-test
   (testing "Criteria map"
@@ -32,3 +33,15 @@
              (djl/load-model nil)
              (catch ExceptionInfo e
                (ex-message e)))))))
+
+(deftest default-trainning-config-test
+  (let [loss (djl/softmax-cross-entropy-loss)
+
+        config (djl/default-trainning-config {:loss loss
+                                              :evaluators [(djl/accuracy-evaluator)]
+                                              :devices (djl/devices 0)
+                                              :listeners (TrainingListener$Defaults/logging)})]
+    (is (= loss (.getLossFunction config)))
+    (is (= 1 (count (.getEvaluators config))))
+    (is (= 1 (count (.getDevices config))))
+    (is (= 6 (count (.getTrainingListeners config))))))
