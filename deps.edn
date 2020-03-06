@@ -6,7 +6,7 @@
         ai.djl/api {:mvn/version "0.4.0-SNAPSHOT"}
         ai.djl/model-zoo {:mvn/version "0.4.0-SNAPSHOT"}
         ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.4.0-SNAPSHOT"}
-        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
+        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0-SNAPSHOT"}}
 
  :aliases
  {:dev
