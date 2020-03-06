@@ -17,7 +17,8 @@
            (ai.djl.training Trainer)
            (ai.djl.training.listener TrainingListener$Defaults)
            (ai.djl.nn SequentialBlock Blocks Activation)
-           (ai.djl.nn.core Linear)))
+           (ai.djl.nn.core Linear)
+           (java.nio.file Paths)))
 
 (comment
 
@@ -114,7 +115,10 @@
             (.close batch))))
 
       ;; Reset training and validation evaluators at end of epoch
-      (.endEpoch trainer)))
+      (.endEpoch trainer))
+
+    (.setProperty model "Epoch" (str epochs))
+    (.save model (Paths/get "dev" (into-array [""])) "mnist"))
 
 
   ;; -- SSD
