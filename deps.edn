@@ -6,7 +6,8 @@
         ai.djl/api {:mvn/version "0.4.0"}
         ai.djl/model-zoo {:mvn/version "0.4.0"}
         ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.4.0"}
-        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
+        ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}
+        ai.djl.pytorch/pytorch-native-auto {:mvn/version "1.4.0"}}
 
  :aliases
  {:log4j
