@@ -77,8 +77,7 @@
   (def ^Mnist test-set
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TEST))
-                    (.setSampling batch-size true)
-                    (.optMaxIteration Long/MAX_VALUE)))
+                    (.setSampling batch-size true)))
       (.prepare (progress-bar))))
 
   (def block
