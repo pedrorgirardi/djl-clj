@@ -9,7 +9,10 @@
         ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}}
 
  :aliases
- {:dev
+ {:log4j
+  {:extra-deps {org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
+
+  :dev
   {:extra-paths ["dev"]
    :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
                 org.clojure/tools.logging {:mvn/version "1.0.0"}
