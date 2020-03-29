@@ -1,10 +1,10 @@
 (ns djl-clj.core-test
   (:require [clojure.test :refer :all]
             [djl-clj.core :as djl])
-  (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
-           (ai.djl Application$NLP)
+  (:import (ai.djl Application$NLP)
            (clojure.lang ExceptionInfo)
-           (ai.djl.training.listener TrainingListener$Defaults)))
+           (ai.djl.training.listener TrainingListener$Defaults)
+           (ai.djl.modality.nlp.qa QAInput)))
 
 (deftest build-criteria-test
   (testing "Criteria map"
@@ -44,4 +44,4 @@
     (is (= loss (.getLossFunction config)))
     (is (= 1 (count (.getEvaluators config))))
     (is (= 1 (count (.getDevices config))))
-    (is (= 6 (count (.getTrainingListeners config))))))
+    (is (= 4 (count (.getTrainingListeners config))))))

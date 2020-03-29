@@ -1,7 +1,7 @@
 (ns djl-clj.model-test
   (:require [clojure.test :refer :all]
             [djl-clj.core :as djl])
-  (:import (ai.djl.mxnet.zoo.nlp.qa QAInput)
+  (:import (ai.djl.modality.nlp.qa QAInput)
            (ai.djl Application$NLP)))
 
 (deftest bert-qa-test

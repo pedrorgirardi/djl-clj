@@ -8,7 +8,7 @@
   (:import (javax.imageio ImageIO)
            (java.io File)
 
-           (ai.djl.mxnet.zoo.nlp.qa QAInput)
+           (ai.djl.modality.nlp.qa QAInput)
            (ai.djl.modality.cv ImageVisualization)
            (ai.djl Application$NLP Model)
            (ai.djl.basicdataset Mnist)
