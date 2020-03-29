@@ -78,7 +78,7 @@
       (.addEvaluator config evaluator))
 
     (when (seq devices)
-      (.optDevices config devices))
+      (.optDevices config (into-array Device devices)))
 
     (when (seq listeners)
       (.addTrainingListeners config (into-array TrainingListener listeners)))

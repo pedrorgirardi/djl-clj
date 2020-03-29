@@ -10,7 +10,7 @@
 
            (ai.djl.modality.nlp.qa QAInput)
            (ai.djl.modality.cv ImageVisualization)
-           (ai.djl Application$NLP Model)
+           (ai.djl Application$NLP Model Device)
            (ai.djl.basicdataset Mnist)
            (ai.djl.ndarray.types Shape)
            (ai.djl.training.dataset Dataset$Usage Batch)
@@ -86,6 +86,7 @@
   (def config
     (default-trainning-config {:loss (softmax-cross-entropy-loss)
                                :evaluators [(accuracy-evaluator)]
+                               :devices [(Device/cpu)]
                                :listeners (TrainingListener$Defaults/logging)}))
 
   (with-open [^Model model (doto (Model/newInstance)
