@@ -3,28 +3,31 @@
  :paths ["src" "resources"]
 
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        ai.djl/api {:mvn/version "0.4.0"}
-        ai.djl/model-zoo {:mvn/version "0.4.0"}
-        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.4.0"}
+        ai.djl/api {:mvn/version "0.4.1"}
+        ai.djl/model-zoo {:mvn/version "0.4.1"}
+        ai.djl.mxnet/mxnet-model-zoo {:mvn/version "0.4.1"}
         ai.djl.mxnet/mxnet-native-auto {:mvn/version "1.6.0"}
         ai.djl.pytorch/pytorch-native-auto {:mvn/version "1.4.0"}}
 
  :aliases
- {:log4j
-  {:extra-deps {org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}}
-
-  :dev
+ {:dev
   {:extra-paths ["dev"]
    :extra-deps {org.clojure/tools.namespace {:mvn/version "1.0.0"}
                 org.clojure/tools.logging {:mvn/version "1.0.0"}
                 org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}
-                ai.djl/basicdataset {:mvn/version "0.4.0"}}}
+                ai.djl/basicdataset {:mvn/version "0.4.1"}}}
 
   :test
   {:extra-paths ["test"]}
 
   :test-runner
   {:extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                           :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+                                           :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}
 
-   :main-opts ["-m" "cognitect.test-runner"]}}}
+                org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.12.1"}}
+
+   :main-opts ["-m" "cognitect.test-runner"]}
+
+  :depot
+  {:extra-deps {olical/depot {:mvn/version "1.8.4"}}
+   :main-opts ["-m" "depot.outdated.main"]}}}
