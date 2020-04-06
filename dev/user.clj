@@ -1,9 +1,13 @@
 (ns user
-  (:require [clojure.tools.logging :as log]
-            [clojure.tools.namespace.repl :refer [refresh]]
-            [clojure.java.io :as io]
+  (:require
+    [clojure.java.io :as io]
+    [clojure.tools.logging :as log]
 
-            [djl-clj.core :as djl])
+    ;; -- Cursive setup
+    ;; I have a REPL command & keybinding to call a `reset` fn
+    [clojure.tools.namespace.repl :refer [refresh] :rename {refresh reset}]
+
+    [djl-clj.core :as djl])
   (:import (javax.imageio ImageIO)
            (java.io File)
 
@@ -20,8 +24,6 @@
            (java.nio.file Paths)))
 
 (comment
-
-  (refresh)
 
   ;; Create your first deep learning neural network
   ;;
