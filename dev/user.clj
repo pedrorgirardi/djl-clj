@@ -83,8 +83,8 @@
     (djl/mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
 
   (def config
-    (djl/default-trainning-config {:loss (djl/softmax-cross-entropy-loss)
-                                   :evaluators [(djl/accuracy-evaluator)]
+    (djl/default-trainning-config (djl/softmax-cross-entropy-loss)
+                                  {:evaluators [(djl/accuracy-evaluator)]
                                    :devices [(Device/cpu)]
                                    :listeners (TrainingListener$Defaults/logging)}))
 

@@ -72,7 +72,7 @@
    computed during training. A TrainingConfig instance that is passed to the
    Trainer will provide this information, and thus facilitate the training
    process."
-  [{:keys [loss evaluators devices listeners]}]
+  [loss & [{:keys [evaluators devices listeners]}]]
   (let [config (DefaultTrainingConfig. loss)]
     (doseq [^Evaluator evaluator evaluators]
       (.addEvaluator config evaluator))
