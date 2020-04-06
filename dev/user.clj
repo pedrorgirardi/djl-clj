@@ -1,10 +1,9 @@
 (ns user
-  (:require [clojure.datafy :as datafy]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [clojure.tools.namespace.repl :refer [refresh]]
             [clojure.java.io :as io]
 
-            [djl-clj.core :refer :all])
+            [djl-clj.core :as djl])
   (:import (javax.imageio ImageIO)
            (java.io File)
 
@@ -72,32 +71,32 @@
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TRAIN))
                     (.setSampling batch-size true)))
-      (.prepare (progress-bar))))
+      (.prepare (djl/progress-bar))))
 
   (def ^Mnist test-set
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TEST))
                     (.setSampling batch-size true)))
-      (.prepare (progress-bar))))
+      (.prepare (djl/progress-bar))))
 
   (def block
-    (mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
+    (djl/mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
 
   (def config
-    (default-trainning-config {:loss (softmax-cross-entropy-loss)
-                               :evaluators [(accuracy-evaluator)]
-                               :devices [(Device/cpu)]
-                               :listeners (TrainingListener$Defaults/logging)}))
+    (djl/default-trainning-config {:loss (djl/softmax-cross-entropy-loss)
+                                   :evaluators [(djl/accuracy-evaluator)]
+                                   :devices [(Device/cpu)]
+                                   :listeners (TrainingListener$Defaults/logging)}))
 
   (with-open [^Model model (doto (Model/newInstance)
                              (.setBlock block))
 
               ^Trainer trainer (doto (.newTrainer model config)
-                                 (.setMetrics (metrics))
+                                 (.setMetrics (djl/metrics))
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
     (doseq [epoch (range epochs)]
-      (doseq [^Batch batch (batches trainer training-set)]
+      (doseq [^Batch batch (djl/batches trainer training-set)]
         (try
           (.trainBatch trainer batch)
           (.step trainer)
@@ -106,7 +105,7 @@
           (finally
             (.close batch))))
 
-      (doseq [^Batch batch (batches trainer test-set)]
+      (doseq [^Batch batch (djl/batches trainer test-set)]
         (try
           (.validateBatch trainer batch)
           (catch Exception e
@@ -118,7 +117,7 @@
       (.endEpoch trainer))
 
     (.setProperty model "Epoch" (str epochs))
-    (.save model (Paths/get "dev" (into-array [""])) "mnist"))
+    (.save model (Paths/get "temp" (into-array [""])) "mnist"))
 
 
   ;; -- SSD
