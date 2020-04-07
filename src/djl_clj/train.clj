@@ -1,60 +1,55 @@
 (ns djl-clj.train
-  (:require [clojure.tools.logging :as log]
-            [djl-clj.core :as djl])
+  (:require [clojure.tools.logging :as log])
   (:import (java.nio.file Paths)
-           (ai.djl.training.dataset Batch Dataset$Usage)
-           (ai.djl.basicdataset Mnist)
+           (ai.djl.training.dataset Batch)
+           (ai.djl.basicdataset Mnist Mnist$Builder)
            (ai.djl Device Model)
-           (ai.djl.training.listener TrainingListener$Defaults)
-           (ai.djl.training Trainer)
-           (ai.djl.ndarray.types Shape)))
+           (ai.djl.training.listener TrainingListener$Defaults TrainingListener)
+           (ai.djl.training Trainer DefaultTrainingConfig)
+           (ai.djl.ndarray.types Shape)
+           (ai.djl.training.util ProgressBar)
+           (ai.djl.basicmodelzoo.basic Mlp)
+           (ai.djl.training.evaluator Evaluator Accuracy)
+           (ai.djl.training.loss Loss)
+           (ai.djl.metric Metrics)))
 
 (def epochs 2)
 
 (def batch-size 32)
 
-(defn ^Mnist training-set []
-  (doto (.build (doto (Mnist/builder)
-                  (.optUsage (Dataset$Usage/TRAIN))
-                  (.setSampling batch-size true)))
-    (.prepare (djl/progress-bar))))
+(defn ^Mnist mnist []
+  (let [^Mnist$Builder builder (doto (Mnist/builder)
+                                 (.setSampling batch-size true))
 
-(defn ^Mnist test-set []
-  (doto (.build (doto (Mnist/builder)
-                  (.optUsage (Dataset$Usage/TEST))
-                  (.setSampling batch-size true)))
-    (.prepare (djl/progress-bar))))
+        ^Mnist dataset (.build builder)]
+    (doto dataset
+      (.prepare (ProgressBar.)))))
 
 (defn block []
-  (djl/mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
+  (let [input (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)
+        output Mnist/NUM_CLASSES
+        hidden (into-array Integer/TYPE [128 64])]
+    (Mlp. input output hidden)))
 
-(def config
-  (djl/default-trainning-config (djl/softmax-cross-entropy-loss)
-                                {:evaluators [(djl/accuracy-evaluator)]
-                                 :devices [(Device/cpu)]
-                                 :listeners (TrainingListener$Defaults/logging)}))
+(defn config []
+  (doto (DefaultTrainingConfig. (Loss/softmaxCrossEntropyLoss))
+    (.addEvaluator (Accuracy.))
+    (.addTrainingListeners (into-array TrainingListener (TrainingListener$Defaults/logging)))
+    (.optDevices (into-array Device [(Device/cpu)]))))
 
 (defn -main []
   (with-open [^Model model (doto (Model/newInstance)
                              (.setBlock (block)))
 
-              ^Trainer trainer (doto (.newTrainer model config)
-                                 (.setMetrics (djl/metrics))
+              ^Trainer trainer (doto (.newTrainer model (config))
+                                 (.setMetrics (Metrics.))
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
     (doseq [_ (range epochs)]
-      (doseq [^Batch batch (djl/batches trainer (training-set))]
+      (doseq [^Batch batch (.iterateDataset trainer (mnist))]
         (try
           (.trainBatch trainer batch)
           (.step trainer)
-          (catch Exception e
-            (log/error e))
-          (finally
-            (.close batch))))
-
-      (doseq [^Batch batch (djl/batches trainer (test-set))]
-        (try
-          (.validateBatch trainer batch)
           (catch Exception e
             (log/error e))
           (finally
