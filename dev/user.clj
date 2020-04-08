@@ -69,31 +69,31 @@
   (def epochs 2)
   (def batch-size 32)
 
-  (def ^Mnist training-set
+  (defn ^Mnist training-set []
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TRAIN))
                     (.setSampling batch-size true)))
       (.prepare (djl/progress-bar))))
 
-  (def ^Mnist test-set
+  (defn ^Mnist test-set []
     (doto (.build (doto (Mnist/builder)
                     (.optUsage (Dataset$Usage/TEST))
                     (.setSampling batch-size true)))
       (.prepare (djl/progress-bar))))
 
-  (def block
+  (defn block []
     (djl/mlp (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH) Mnist/NUM_CLASSES [128 64]))
 
-  (def config
+  (defn config []
     (djl/default-trainning-config (djl/softmax-cross-entropy-loss)
                                   {:evaluators [(djl/accuracy-evaluator)]
                                    :devices [(Device/cpu)]
                                    :listeners (TrainingListener$Defaults/logging)}))
 
   (with-open [^Model model (doto (Model/newInstance)
-                             (.setBlock block))
+                             (.setBlock (block)))
 
-              ^Trainer trainer (doto (.newTrainer model config)
+              ^Trainer trainer (doto (.newTrainer model (config))
                                  (.setMetrics (djl/metrics))
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
@@ -107,7 +107,7 @@
               (log/error e))
             (finally
               (.close batch))))
-        (djl/batches trainer training-set))
+        (djl/batches trainer (training-set)))
 
       (run!
         (fn [^Batch batch]
@@ -117,7 +117,7 @@
               (log/error e))
             (finally
               (.close batch))))
-        (djl/batches trainer test-set))
+        (djl/batches trainer (test-set)))
 
       ;; Reset training and validation evaluators at end of epoch
       (.endEpoch trainer))
