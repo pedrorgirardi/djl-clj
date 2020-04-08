@@ -97,7 +97,7 @@
                                  (.setMetrics (djl/metrics))
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
-    (doseq [epoch (range epochs)]
+    (doseq [_ (range epochs)]
       (run!
         (fn [^Batch batch]
           (try
