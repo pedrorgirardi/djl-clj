@@ -1,4 +1,5 @@
-{:mvn/repos {"sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots/"}}
+{:mvn/local-repo ".m2/repository"
+ :mvn/repos {"sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots/"}}
 
  :paths ["src" "resources"]
 
