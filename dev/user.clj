@@ -98,22 +98,26 @@
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
     (doseq [epoch (range epochs)]
-      (doseq [^Batch batch (djl/batches trainer training-set)]
-        (try
-          (.trainBatch trainer batch)
-          (.step trainer)
-          (catch Exception e
-            (log/error e))
-          (finally
-            (.close batch))))
+      (run!
+        (fn [^Batch batch]
+          (try
+            (.trainBatch trainer batch)
+            (.step trainer)
+            (catch Exception e
+              (log/error e))
+            (finally
+              (.close batch))))
+        (djl/batches trainer training-set))
 
-      (doseq [^Batch batch (djl/batches trainer test-set)]
-        (try
-          (.validateBatch trainer batch)
-          (catch Exception e
-            (log/error e))
-          (finally
-            (.close batch))))
+      (run!
+        (fn [^Batch batch]
+          (try
+            (.validateBatch trainer batch)
+            (catch Exception e
+              (log/error e))
+            (finally
+              (.close batch))))
+        (djl/batches trainer test-set))
 
       ;; Reset training and validation evaluators at end of epoch
       (.endEpoch trainer))

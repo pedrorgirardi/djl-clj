@@ -46,14 +46,16 @@
                                  (.initialize (into-array Shape [(Shape. [1 (* Mnist/IMAGE_HEIGHT Mnist/IMAGE_WIDTH)])])))]
 
     (doseq [_ (range epochs)]
-      (doseq [^Batch batch (.iterateDataset trainer (mnist))]
-        (try
-          (.trainBatch trainer batch)
-          (.step trainer)
-          (catch Exception e
-            (log/error e))
-          (finally
-            (.close batch))))
+      (run!
+        (fn [^Batch batch]
+          (try
+            (.trainBatch trainer batch)
+            (.step trainer)
+            (catch Exception e
+              (log/error e))
+            (finally
+              (.close batch))))
+        (.iterateDataset trainer (mnist)))
 
       ;; Reset training and validation evaluators at end of epoch
       (.endEpoch trainer))
